@@ -23,7 +23,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("CONTENTS: %s", yamlFile)
+		fmt.Printf("BOB CONTENTS: %s", yamlFile)
+		println("BOB CONTENTS2: "+ string(yamlFile))
 	}
 	//logger := log.New(os.Stderr, "", log.LstdFlags)
 	//logger.Printf("starting Metric Discovery Registrar...")
