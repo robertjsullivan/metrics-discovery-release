@@ -48,6 +48,7 @@ func (fp *fileProvider) populateTargets() {
 
 	for _, f := range files {
 		yamlFile, err := ioutil.ReadFile(f)
+		println(string(yamlFile))
 		if err != nil {
 			fp.logger.Printf("cannot read file: %s", err)
 			continue

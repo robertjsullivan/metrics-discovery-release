@@ -67,7 +67,7 @@ func (r *DynamicRegistrar) publishTargets() {
 			r.logger.Printf("unable to marshal target(%s): %s\n", t.Source, err)
 			continue
 		}
-
+        println("publishing: "+t.Source)
 		err = r.publisher.Publish(registry.ScrapeTargetQueueName, bytes)
 		if err != nil {
 			r.logger.Printf("unable to publish target(%s): %s\n", t.Source, err)
