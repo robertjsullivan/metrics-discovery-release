@@ -10,33 +10,41 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"fmt"
 
-	metrics "code.cloudfoundry.org/go-metric-registry"
 	"code.cloudfoundry.org/metrics-discovery/cmd/discovery-registrar/app"
-	"code.cloudfoundry.org/metrics-discovery/internal/target"
 )
 
 func main() {
-	logger := log.New(os.Stderr, "", log.LstdFlags)
-	logger.Printf("starting Metric Discovery Registrar...")
-	defer logger.Printf("closing Metric Discovery Registrar...")
+	ticker := time.NewTicker(2 * time.Second)
 
-	cfg := app.LoadConfig(logger)
-
-	natsConn := connectToNATS(cfg, logger)
-
-	targetProvider := target.NewFileProvider(cfg.TargetsGlob, cfg.TargetRefreshInterval, logger)
-	go targetProvider.Start()
-
-	m := metrics.NewRegistry(logger,
-		metrics.WithTLSServer(cfg.MetricsPort, cfg.MetricsCertPath, cfg.MetricsKeyPath, cfg.MetricsCAPath),
-	)
-
-	registrar := app.NewDynamicRegistrar(targetProvider.GetTargets, natsConn, cfg.TargetRefreshInterval, m, logger)
-	go registrar.Start()
-	defer registrar.Stop()
-
-	waitForTermination()
+	for range ticker.C {
+		yamlFile, err := ioutil.ReadFile("/var/vcap/data/metrics-agent/metric_targets.yml")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("CONTENTS: %s", yamlFile)
+	}
+	//logger := log.New(os.Stderr, "", log.LstdFlags)
+	//logger.Printf("starting Metric Discovery Registrar...")
+	//defer logger.Printf("closing Metric Discovery Registrar...")
+	//
+	//cfg := app.LoadConfig(logger)
+	//
+	//natsConn := connectToNATS(cfg, logger)
+	//
+	//targetProvider := target.NewFileProvider(cfg.TargetsGlob, cfg.TargetRefreshInterval, logger)
+	//go targetProvider.Start()
+	//
+	//m := metrics.NewRegistry(logger,
+	//	metrics.WithTLSServer(cfg.MetricsPort, cfg.MetricsCertPath, cfg.MetricsKeyPath, cfg.MetricsCAPath),
+	//)
+	//
+	//registrar := app.NewDynamicRegistrar(targetProvider.GetTargets, natsConn, cfg.TargetRefreshInterval, m, logger)
+	//go registrar.Start()
+	//defer registrar.Stop()
+	//
+	//waitForTermination()
 }
 
 func connectToNATS(cfg app.Config, logger *log.Logger) *nats.Conn {
